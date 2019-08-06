@@ -10,4 +10,5 @@ public class FiveForAmountDiscount extends Discount {
             double unitPrice) {
         return unitPrice * quantity - (argument * (quantity/5) + quantity % 5 * unitPrice);
     }
+
 }

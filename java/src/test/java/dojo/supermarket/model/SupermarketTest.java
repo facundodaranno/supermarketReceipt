@@ -20,7 +20,7 @@ public class SupermarketTest {
         cart.addItemQuantity(apples, 2.5);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.TenPercentDiscount, toothbrush, 10.0);
+        teller.addSpecialOffer(new PercentOffer(toothbrush,10));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
@@ -38,7 +38,7 @@ public class SupermarketTest {
         cart.addItemQuantity(toothbrush, 2);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.TwoForAmount, toothbrush, 0.99);
+        teller.addSpecialOffer(new TwoForAmountOffer(toothbrush, 0.99));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
@@ -56,7 +56,7 @@ public class SupermarketTest {
         cart.addItemQuantity(apples, 1);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.TenPercentDiscount, apples, 20.0);
+        teller.addSpecialOffer(new PercentOffer(apples,20));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
@@ -73,7 +73,7 @@ public class SupermarketTest {
         cart.addItemQuantity(toothpaste, 5);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.FiveForAmount, toothpaste, 7.49);
+        teller.addSpecialOffer(new FiveForAmountOffer(toothpaste,7.49));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
@@ -90,7 +90,7 @@ public class SupermarketTest {
         cart.addItemQuantity(cherrybox, 2);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.TwoForAmount, cherrybox, 0.99);
+        teller.addSpecialOffer(new TwoForAmountOffer(cherrybox, 0.99));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
@@ -107,11 +107,62 @@ public class SupermarketTest {
         cart.addItemQuantity(rice, 3);
 
         Teller teller = new Teller(catalog);
-        teller.addSpecialOffer(SpecialOfferType.ThreeForTwo, rice,0);
+        teller.addSpecialOffer(new ThreeForTwoOffer(rice));
 
         Receipt receipt = teller.checksOutArticlesFrom(cart);
 
         assertEquals(4.98, receipt.getTotalPrice(), 0.01);
+    }
+
+    @Test
+    public void test_buy_rice_with_10_percentage_discount_and_two_boxes_of_cherry_must_pay_3_23() {
+        //given:
+        SupermarketCatalog catalog = new FakeCatalog();
+        Product rice = new Product("rice", ProductUnit.Each);
+        Product cherry = new Product("cherry", ProductUnit.Each);
+        catalog.addProduct(rice, 2.49);
+        catalog.addProduct(cherry, 0.69);
+
+        ShoppingCart cart = new ShoppingCart();
+        cart.addItemQuantity(rice, 1);
+        cart.addItemQuantity(cherry, 2);
+
+        Teller teller = new Teller(catalog);
+        teller.addSpecialOffer(new PercentOffer(rice, 10));
+        teller.addSpecialOffer(new TwoForAmountOffer(cherry,0.99) );
+
+        //when:
+        Receipt receipt = teller.checksOutArticlesFrom(cart);
+
+        //then:
+        assertEquals(3.23, receipt.getTotalPrice(), 0.01);
+    }
+
+
+
+    @Test
+    public void test_when_buy_all_product_of_a_bundle_you_get_ten_percentage_of_discount_on_it() {
+        //given:
+        SupermarketCatalog catalog = new FakeCatalog();
+
+        Product toothbrush = new Product("toothbrush", ProductUnit.Each);
+        Product toothPaste = new Product("toothPast", ProductUnit.Each);
+
+        catalog.addProduct(toothbrush, 0.99);
+        catalog.addProduct(toothPaste, 1.79);
+
+        ShoppingCart cart = new ShoppingCart();
+        cart.addItemQuantity(toothbrush, 1);
+        cart.addItemQuantity(toothPaste, 1);
+
+        Teller teller = new Teller(catalog);
+        teller.addSpecialOffer( new BundleTenPercentOffer( toothbrush, toothPaste ) );
+
+        //when:
+        Receipt receipt = teller.checksOutArticlesFrom(cart);
+
+        //then:
+        assertEquals(3, receipt.getTotalPrice(), 0.01);
     }
 
 }

@@ -21,4 +21,5 @@ public class TwoForAmountDiscount extends Discount {
             double total) {
         return unitPrice * quantity - total;
     }
+
 }
